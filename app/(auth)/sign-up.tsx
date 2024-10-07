@@ -9,6 +9,7 @@ import OAuth from '@/components/OAuth';
 import { HelloWave } from '@/components/HelloWave';
 import { ReactNativeModal } from "react-native-modal";
 import { useSignUp } from '@clerk/clerk-expo';
+import { fetchAPI } from '@/lib/fetch';
 
 const SignUpScreen = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -28,11 +29,11 @@ const SignUpScreen = () => {
   const onSignUpPress = async () => {
     if (!isLoaded) return;
     try {
-      await signUp.create({
+      const createSignup = await signUp.create({
         emailAddress: form.email,
         password: form.password,
       });
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      const emailAddressVerification = await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setVerification({
         ...verification,
         state: "pending",
@@ -52,14 +53,15 @@ const SignUpScreen = () => {
         code: verification.code,
       });
       if (completeSignUp.status === "complete") {
-        // await fetchAPI("/(api)/user", {
-        //   method: "POST",
-        //   body: JSON.stringify({
-        //     name: form.name,
-        //     email: form.email,
-        //     clerkId: completeSignUp.createdUserId,
-        //   }),
-        // });
+        const response = await fetchAPI("/(api)/user", {
+          method: "POST",
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        });
+        console.log(response);
         await setActive({ session: completeSignUp.createdSessionId });
         setVerification({
           ...verification,
