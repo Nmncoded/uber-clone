@@ -60,6 +60,7 @@ const GoogleTextInput = ({
             address: data.description,
           });
         }}
+        
         query={{
           key: googlePlacesApiKey,
           language: "en",
